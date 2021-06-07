@@ -13,7 +13,11 @@ namespace Whatsdown_ProfileService.Data
         {
 
             if (!Database.IsInMemory())
+            {
+                Console.WriteLine(Database.GetDbConnection());
                 Database.EnsureCreated();
+            }
+               
         }
 
 
