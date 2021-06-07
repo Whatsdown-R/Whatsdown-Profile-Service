@@ -15,8 +15,17 @@ namespace Whatsdown_ProfileService.Data
             if (!Database.IsInMemory())
             {
                 Console.WriteLine(Database.GetDbConnection().ConnectionString);
-                Database.Migrate();
+                if (Database.CanConnect())
+                {
+                    Console.WriteLine("Profile service can connect to database!!!");
+                }
+                else
+                {
+                    Console.WriteLine("Profile service cannot connect to database!!!");
+                }
                 
+                Database.Migrate();
+             
             }
                
         }
