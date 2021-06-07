@@ -15,7 +15,8 @@ namespace Whatsdown_ProfileService.Data
             if (!Database.IsInMemory())
             {
                 Console.WriteLine(Database.GetDbConnection().ConnectionString);
-                Database.EnsureCreated();
+                Database.Migrate();
+                
             }
                
         }

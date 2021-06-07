@@ -30,7 +30,8 @@ namespace Whatsdown_ProfileService
         {
 
             services.AddDbContext<ProfileContext>(options =>
-            options.UseMySql(Configuration.GetConnectionString("ProfileDB")));
+       
+            options.UseMySql(Configuration.GetConnectionString("ProfileDB"))); 
             services.AddControllers().AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
