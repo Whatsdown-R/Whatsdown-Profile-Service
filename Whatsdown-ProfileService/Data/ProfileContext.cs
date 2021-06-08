@@ -18,12 +18,13 @@ namespace Whatsdown_ProfileService.Data
                 if (Database.CanConnect())
                 {
                     Console.WriteLine("Profile service can connect to database!!!");
+                    Console.WriteLine("The database is named: " + Database.GetDbConnection().Database.ToString());
                 }
                 else
                 {
                     Console.WriteLine("Profile service cannot connect to database!!!");
                 }
-                
+               
                 Database.Migrate();
              
             }
