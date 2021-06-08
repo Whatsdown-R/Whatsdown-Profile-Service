@@ -25,7 +25,7 @@ namespace Whatsdown_ProfileService.Data
                     Console.WriteLine("Profile service cannot connect to database!!!");
                 }
                
-                Database.Migrate();
+                Database.EnsureCreated();
              
             }
                
