@@ -69,7 +69,7 @@ namespace Whatsdown_ProfileService.Logic
                 
                
                 List<PotentialContactView> contacts = new List<PotentialContactView>();
-            foreach (Profile item in profiles)
+            foreach (Profile item in profiles.ToList())
             {
                 if (item.profileId == profileId)
                 {
