@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Whatsdown_Authentication_Service.Models
 {
+    [Serializable]
     public class Profile
     {
       

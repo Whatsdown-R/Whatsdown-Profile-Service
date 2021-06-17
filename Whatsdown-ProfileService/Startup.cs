@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Whatsdown_ProfileService.caching;
 using Whatsdown_ProfileService.Data;
 
 namespace Whatsdown_ProfileService
@@ -38,6 +39,8 @@ namespace Whatsdown_ProfileService
             {
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
             });
+            services.AddDistributedMemoryCache();
+            services.AddScoped<IMemoryCache, MemoryCache>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

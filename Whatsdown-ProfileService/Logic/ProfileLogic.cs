@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Whatsdown_Authentication_Service.Logic;
 using Whatsdown_Authentication_Service.Models;
 using Whatsdown_Friend_Service.Views;
+using Whatsdown_ProfileService.caching;
 using Whatsdown_ProfileService.Data;
 using Whatsdown_ProfileService.Views;
 
@@ -13,9 +15,13 @@ namespace Whatsdown_ProfileService.Logic
     public class ProfileLogic
     {
         private ProfileRepository repository;
-        public ProfileLogic(ProfileContext context)
+        private readonly IMemoryCache mCache;
+        private readonly ILogger<ProfileLogic> _logger;
+        public ProfileLogic(ProfileContext context, IMemoryCache memoryCache, ILogger<ProfileLogic> logger)
         {
+            _logger = logger;
             repository = new ProfileRepository(context);
+            this.mCache = memoryCache;
         }
 
 
@@ -58,17 +64,42 @@ namespace Whatsdown_ProfileService.Logic
 
         public List<PotentialContactView> GetProfilesByName(string name, string profileId)
         {
+            _logger.LogInformation($"GetProfilesByName() method called with parameters: name = {name} and profileId = {profileId}");
+            
+            if (name == null)
+            {
+                _logger.LogWarning($"GetProfilesByName() method failed because parameter name is null");
+                throw new ArgumentException("Name has to be at least 5 characters long");
+            }
+            
+            if (name.Length < 5)
+            {
+                _logger.LogWarning($"GetProfilesByName() method failed because parameter name length = {name.Length} while it should be 5");
+                throw new ArgumentException("Name has to be at least 5 characters long");
+            }
+                   
 
-                if (name.Length < 5)
-                    throw new ArgumentException("Name has to be at least 5 characters long");
+            if (name.Length > 35)
+            {
+                _logger.LogWarning($"GetProfilesByName() method failed because parameter name length = {name.Length} while it should be below 35");
+                throw new ArgumentException("Name can be at most 35 characters long");
+            }
+                   
+          
+            List<Profile> profiles = mCache.getCache<List<Profile>>(name);
+            
+            if (profiles == null)
+            {
+                _logger.LogDebug($"There is no cache of parameter name {name}");
+                profiles = this.repository.GetContactsByName(name);
+                mCache.setCache<List<Profile>>(profiles, name);
+            }
+            else
+            {
+                _logger.LogDebug($"There is a cache of parameter name {name}");
+            }    
 
-                if (name.Length > 35)
-                    throw new ArgumentException("Name can be at most 35 characters long");
-                List<string> userIds = new List<string>();
-                List<Profile> profiles = this.repository.GetContactsByName(name);
-                
-               
-                List<PotentialContactView> contacts = new List<PotentialContactView>();
+            List<PotentialContactView> contacts = new List<PotentialContactView>();
             foreach (Profile item in profiles.ToList())
             {
                 if (item.profileId == profileId)

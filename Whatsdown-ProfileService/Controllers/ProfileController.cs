@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ using Whatsdown_Friend_Service.Views;
 using Whatsdown_ProfileService.Data;
 using Whatsdown_ProfileService.Logic;
 using Whatsdown_ProfileService.Views;
+using Whatsdown_ProfileService.caching;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -18,19 +20,23 @@ namespace Whatsdown_ProfileService.Controllers
     public class ProfileController : ControllerBase
     {
         ProfileLogic logic;
-        public ProfileController(ProfileContext context)
+        private readonly ILogger<ProfileController> _logger;
+        private readonly IMemoryCache mCache;
+        public ProfileController(ProfileContext context, ILoggerFactory logFactory, IMemoryCache memoryCache)
         {
-            logic = new ProfileLogic(context);
+            _logger = logFactory.CreateLogger<ProfileController>();
+            logic = new ProfileLogic(context, memoryCache, logFactory.CreateLogger<ProfileLogic>());
         }
         // GET: api/<ProfileController>
         [HttpGet]
         public IActionResult GetUserProfiles(List<String> UserIds)
         {
-            IActionResult response;
-            List<Profile> profiles;
+
+            _logger.LogInformation("GetUserProfiles() method called");
             try
             {
-                profiles = logic.GetProfiles(UserIds);
+                List<Profile>  profiles = logic.GetProfiles(UserIds);
+                _logger.LogInformation("GetUserProfiles() method succesfull");
                 return Ok(new { profiles = profiles });
             }
             catch (Exception ex)
@@ -65,30 +71,37 @@ namespace Whatsdown_ProfileService.Controllers
         [HttpPost]
         public IActionResult CreateProfile([FromBody] PostProfileView profileView)
         {
-           
-            Console.WriteLine($"Creating Profile with following parameters: {0} , {1} , {2}", profileView.displayName, profileView.gender, profileView.profileId);
+            _logger.LogInformation("CreateProfile() method called");
+            _logger.LogDebug($"Creating Profile with following parameters: {profileView.displayName} , {profileView.gender} , {profileView.profileId}");
+
             try
             {
                 logic.PostProfile(profileView);
+                _logger.LogInformation("CreateProfile() method Succesfull");
                 return Ok();
             }catch(ArgumentException ex)
             {
-                Console.WriteLine(ex.Message);
+                _logger.LogWarning(ex.Message);
                 return BadRequest();
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                _logger.LogWarning(ex.Message);
                 return Unauthorized();
             }
         }
 
+     //This is the one
         [HttpGet("contact")]
         public IActionResult GetFriend(string name, string profileId)
         {
             try
             {
+                _logger.LogInformation("GetFriend() method called");
+                _logger.LogDebug("GetFriend() method called");
                 List<PotentialContactView> profiles = logic.GetProfilesByName(name, profileId);
+ 
+                _logger.LogInformation("GetFriend() method succesfull");
                 return Ok(new { profiles = profiles });
             }
             catch (ArgumentException ex)
