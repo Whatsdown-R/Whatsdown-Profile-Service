@@ -52,7 +52,9 @@ namespace Whatsdown_ProfileService.Controllers
         {
             try
             {
+                _logger.LogInformation($"CreateProfile() method called with parameter id: {id}");
                 Profile profile = logic.GetProfileById(id);
+                _logger.LogInformation("CreateProfile() method succesfull");
                 return Ok(new { profile = profile });
             }catch(ArgumentException ex)
             {
@@ -98,7 +100,6 @@ namespace Whatsdown_ProfileService.Controllers
             try
             {
                 _logger.LogInformation("GetFriend() method called");
-                _logger.LogDebug("GetFriend() method called");
                 List<PotentialContactView> profiles = logic.GetProfilesByName(name, profileId);
  
                 _logger.LogInformation("GetFriend() method succesfull");
